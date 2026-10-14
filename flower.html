@@ -13,7 +13,7 @@
 
 <body class="not-loaded">
   <!-- Audio element (hidden) -->
-  <audio id="backgroundMusic" loop>
+  <audio id="backgroundMusic" loop preload="none">
     <source src="ERIK x FREAKY x BENNY - 'Yêu Bền Bỉ'  Official MV - ERIK Official.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
@@ -327,10 +327,13 @@
 
   <script>
     // ===== HỆ THỐNG NHẠC NỀN =====
-    const audio = document.getElementById('backgroundMusic');
+    const audio = window.parent === window
+        ? document.getElementById('backgroundMusic')
+        : window.parent.document.getElementById('backgroundMusic');
     
     // Khôi phục trạng thái nhạc khi trang tải
-    window.addEventListener('load', function() {
+    if (window.parent === window) {
+      window.addEventListener('load', function() {
         const isPlaying = localStorage.getItem('musicPlaying') === 'true';
         const currentTime = localStorage.getItem('musicTime');
         const volume = localStorage.getItem('musicVolume');
@@ -379,6 +382,7 @@
     audio.addEventListener('volumechange', function() {
         localStorage.setItem('musicVolume', audio.volume);
     });
+    }
 
     // Thêm sự kiện click toàn trang để kích hoạt audio (nếu bị chặn autoplay)
     document.addEventListener('click', function() {

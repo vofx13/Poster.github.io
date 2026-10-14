@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Một trái tim gửi tặng</title>
+    <link rel="stylesheet" href="css/page1.css">
+</head>
+<body>
+    <div class="night"></div>
+    <div class="light-glow"></div>
+    <div class="stars" id="stars"></div>
+    <div id="clouds"></div>
+
+    <section class="journey-scene" id="journeyScene" aria-hidden="true">
+        <p class="journey-caption" id="journeyCaption">Một trái tim đang được thắp sáng...</p>
+        <svg class="heart-art" viewBox="0 0 600 560" role="img" aria-label="Trái tim được vẽ bằng ánh sáng và phủ đầy hoa">
+            <defs>
+                <clipPath id="heartClip">
+                    <path d="M300 74 C245 15 165 5 105 28 C42 53 38 130 59 205 C92 329 214 443 300 510 C386 443 508 329 541 205 C562 130 558 53 495 28 C435 5 355 15 300 74 Z"></path>
+                </clipPath>
+                <filter id="heartGlow" x="-40%" y="-40%" width="180%" height="180%">
+                    <feGaussianBlur stdDeviation="12"></feGaussianBlur>
+                </filter>
+                <filter id="particleGlow" x="-100%" y="-100%" width="300%" height="300%">
+                    <feGaussianBlur stdDeviation="2"></feGaussianBlur>
+                </filter>
+            </defs>
+            <g id="heartParticles" aria-hidden="true"></g>
+            <g id="heartInsideFlowers" clip-path="url(#heartClip)"></g>
+            <path class="heart-path heart-path--glow" id="heartGlowPath" d="M300 74 C245 15 165 5 105 28 C42 53 38 130 59 205 C92 329 214 443 300 510 C386 443 508 329 541 205 C562 130 558 53 495 28 C435 5 355 15 300 74 Z"></path>
+            <path class="heart-path" id="heartOutline" d="M300 74 C245 15 165 5 105 28 C42 53 38 130 59 205 C92 329 214 443 300 510 C386 443 508 329 541 205 C562 130 558 53 495 28 C435 5 355 15 300 74 Z"></path>
+            <path class="heart-path heart-path--inner" id="heartInnerPath" d="M300 74 C245 15 165 5 105 28 C42 53 38 130 59 205 C92 329 214 443 300 510 C386 443 508 329 541 205 C562 130 558 53 495 28 C435 5 355 15 300 74 Z"></path>
+        </svg>
+    </section>
+
+    <!-- Audio element (hidden) -->
+    <audio id="backgroundMusic" loop preload="none">
+        <source src="ERIK x FREAKY x BENNY - 'Yêu Bền Bỉ'  Official MV - ERIK Official.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        // Khởi tạo và quản lý nhạc nền
+        const audio = window.parent === window
+            ? document.getElementById('backgroundMusic')
+            : window.parent.document.getElementById('backgroundMusic');
+        let isFirstPlay = true; // Theo dõi lần phát đầu tiên
+
+        function navigateToPage(path) {
+            if (window.parent !== window && typeof window.parent.navigateToPage === 'function') {
+                window.parent.navigateToPage(path);
+                return;
+            }
+            window.location.href = path;
+        }
+        
+        // Khôi phục trạng thái nhạc khi trang tải
+        if (window.parent === window) {
+          window.addEventListener('load', function() {
+            const isPlaying = localStorage.getItem('musicPlaying') === 'true';
+            const currentTime = localStorage.getItem('musicTime');
+            const volume = localStorage.getItem('musicVolume');
+            
+            // Đặt âm lượng mặc định nếu chưa có
+            if (!volume) {
+                audio.volume = 0.7;
+                localStorage.setItem('musicVolume', '0.7');
+            } else {
+                audio.volume = parseFloat(volume);
+            }
+            
+            // Khôi phục vị trí phát (chỉ khi đã từng phát trước đó)
+            if (currentTime && isPlaying) {
+                audio.currentTime = parseFloat(currentTime);
+            }
+            
+            // KHÔNG tự động phát nhạc khi trang tải
+            // Chỉ phát khi người dùng click nút "Bắt Đầu"
+            console.log('🎵 Nhạc đã sẵn sàng, chờ người dùng bắt đầu');
+        });
+
+        // Lưu trạng thái khi nhạc phát
+        audio.addEventListener('play', function() {
+            localStorage.setItem('musicPlaying', 'true');
+            console.log('🎵 Nhạc bắt đầu phát');
+        });
+
+        // Lưu trạng thái khi nhạc dừng
+        audio.addEventListener('pause', function() {
+            localStorage.setItem('musicPlaying', 'false');
+            console.log('🎵 Nhạc đã dừng');
+        });
+
+        // Lưu thời gian hiện tại định kỳ
+        setInterval(() => {
+            if (!audio.paused) {
+                localStorage.setItem('musicTime', audio.currentTime);
+            }
+        }, 2000);
+
+        // Lưu âm lượng khi thay đổi
+          audio.addEventListener('volumechange', function() {
+              localStorage.setItem('musicVolume', audio.volume);
+          });
+        }
+
+        // Hàm bắt đầu phát nhạc
+        function startMusic() {
+            return new Promise((resolve, reject) => {
+                if (audio.paused) {
+                    // Đặt thời gian bắt đầu từ 0 nếu là lần phát đầu tiên
+                    if (isFirstPlay) {
+                        audio.currentTime = 0;
+                        isFirstPlay = false;
+                    }
+                    
+                    const playPromise = audio.play();
+                    
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            console.log('🎵 Nhạc "Yêu Bền Bỉ" đang phát...');
+                            resolve();
+                        }).catch(error => {
+                            console.log('❌ Không thể phát nhạc:', error);
+                            reject(error);
+                        });
+                    }
+                } else {
+                    // Nhạc đang phát rồi
+                    resolve();
+                }
+            });
+        }
+
+        // Tạo sao
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.classList.add('star');
+            
+            const size = Math.random() * 2 + 0.5;
+            const left = Math.random() * 100;
+            const top = Math.random() * 100;
+            const delay = Math.random() * 3;
+            
+            star.style.width = `${size}px`;
+            star.style.height = `${size}px`;
+            star.style.left = `${left}%`;
+            star.style.top = `${top}%`;
+            star.style.animationDelay = `${delay}s`;
+            
+            starsContainer.appendChild(star);
+        }
+
+        // Tạo mây
+        const cloudsContainer = document.getElementById('clouds');
+        for (let i = 0; i < 5; i++) {
+            const cloud = document.createElement('div');
+            cloud.classList.add('cloud');
+            
+            const width = Math.random() * 200 + 100;
+            const height = Math.random() * 80 + 40;
+            const top = Math.random() * 50;
+            const opacity = Math.random() * 0.1 + 0.05;
+            const duration = Math.random() * 40 + 40;
+            const delay = Math.random() * 20;
+            
+            cloud.style.width = `${width}px`;
+            cloud.style.height = `${height}px`;
+            cloud.style.top = `${top}%`;
+            cloud.style.opacity = opacity;
+            cloud.style.animationDuration = `${duration}s`;
+            cloud.style.animationDelay = `${delay}s`;
+            
+            cloudsContainer.appendChild(cloud);
+        }
+
+        let journeyStarted = false;
+
+        // Vẽ trái tim bằng ánh sáng, sau đó cho hoa nở dần trước khi mở bức thư.
+        function startJourney() {
+            const scene = document.getElementById('journeyScene');
+            const outline = document.getElementById('heartOutline');
+            const glow = document.getElementById('heartGlowPath');
+            const inner = document.getElementById('heartInnerPath');
+            const caption = document.getElementById('journeyCaption');
+            const heartArt = document.querySelector('.heart-art');
+            const particles = document.getElementById('heartParticles');
+
+            if (journeyStarted) return;
+            journeyStarted = true;
+            scene.setAttribute('aria-hidden', 'false');
+            startMusic().catch(error => {
+                console.warn('Không thể phát nhạc nền:', error);
+            });
+
+            const flowerImages = ['1.png', '2.png', '3.png'];
+            const insideContainer = document.getElementById('heartInsideFlowers');
+            const drawDuration = 4800;
+            const gatherDuration = 3000;
+            const lastBloomDelay = 1800;
+            const bloomDuration = 800;
+            const fallDuration = 2900;
+            const flowerStart = gatherDuration + drawDuration;
+            const fallStart = flowerStart + lastBloomDelay + bloomDuration + 500;
+            const insidePlacements = [];
+            const gridSpacing = 0.09;
+
+            function addGatheringParticles() {
+                for (let index = 0; index < 64; index++) {
+                    const particle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    const side = Math.floor(Math.random() * 4);
+                    const startX = side < 2 ? Math.random() * 600 : (side === 2 ? 0 : 600);
+                    const startY = side >= 2 ? Math.random() * 560 : (side === 0 ? 0 : 560);
+                    const duration = 2.4 + Math.random() * 0.5;
+                    const delay = Math.random() * 0.5;
+
+                    particle.setAttribute('cx', '300');
+                    particle.setAttribute('cy', '74');
+                    particle.setAttribute('r', (1.2 + Math.random() * 1.8).toFixed(1));
+                    particle.setAttribute('opacity', '0');
+                    particle.setAttribute('fill', Math.random() > 0.35 ? '#fff4c2' : '#ffd1ed');
+                    particle.setAttribute('filter', 'url(#particleGlow)');
+
+                    const flight = document.createElementNS('http://www.w3.org/2000/svg', 'animateTransform');
+                    flight.setAttribute('attributeName', 'transform');
+                    flight.setAttribute('type', 'translate');
+                    flight.setAttribute('from', `${(startX - 300).toFixed(1)} ${(startY - 74).toFixed(1)}`);
+                    flight.setAttribute('to', '0 0');
+                    flight.setAttribute('dur', `${duration.toFixed(2)}s`);
+                    flight.setAttribute('begin', `${delay.toFixed(2)}s`);
+                    flight.setAttribute('fill', 'freeze');
+
+                    const shimmer = document.createElementNS('http://www.w3.org/2000/svg', 'animate');
+                    shimmer.setAttribute('attributeName', 'opacity');
+                    shimmer.setAttribute('values', '0;1;0.95;0');
+                    shimmer.setAttribute('keyTimes', '0;0.12;0.78;1');
+                    shimmer.setAttribute('dur', `${duration.toFixed(2)}s`);
+                    shimmer.setAttribute('begin', `${delay.toFixed(2)}s`);
+                    shimmer.setAttribute('fill', 'freeze');
+
+                    particle.append(flight, shimmer);
+                    particles.appendChild(particle);
+                }
+            }
+
+            scene.classList.add('is-visible');
+            addGatheringParticles();
+
+            for (let y = -0.99, row = 0; y <= 1.04; y += gridSpacing, row++) {
+                const rowOffset = row % 2 ? gridSpacing / 2 : 0;
+                for (let x = -0.99 + rowOffset; x <= 0.99; x += gridSpacing) {
+                    const heartShape = Math.pow(x * x + y * y - 1, 3) - x * x * y * y * y;
+                    if (heartShape > 0) continue;
+
+                    const jitterX = x + (Math.random() - 0.5) * 0.035;
+                    const jitterY = y + (Math.random() - 0.5) * 0.035;
+                    const jitteredShape = Math.pow(jitterX * jitterX + jitterY * jitterY - 1, 3) - jitterX * jitterX * jitterY * jitterY * jitterY;
+                    if (jitteredShape <= 0) insidePlacements.push({ x: jitterX, y: jitterY });
+                }
+            }
+
+            function makeFlower(container, x, y, size, delay, rotation) {
+                const flower = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+                flower.setAttribute('href', flowerImages[Math.floor(Math.random() * flowerImages.length)]);
+                flower.setAttribute('x', (x - size / 2).toFixed(1));
+                flower.setAttribute('y', (y - size / 2).toFixed(1));
+                flower.setAttribute('width', size.toFixed(1));
+                flower.setAttribute('height', size.toFixed(1));
+                flower.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+                flower.setAttribute('transform', `rotate(${rotation.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)})`);
+                flower.classList.add('bloom-flower');
+                flower.style.setProperty('--fall-x', `${(Math.random() * 140 - 70).toFixed(1)}px`);
+                flower.style.setProperty('--fall-y', `${620 + Math.random() * 180}px`);
+                flower.style.animationDelay = `${delay}ms`;
+                container.appendChild(flower);
+            }
+
+            function addInsideFlowers() {
+                insidePlacements
+                    .map(point => ({ ...point, distance: Math.sqrt(point.x * point.x + point.y * point.y) }))
+                    .sort((first, second) => first.distance - second.distance)
+                    .forEach(({ x, y, distance }) => {
+                        const flowerSize = 62 + Math.random() * 12;
+                        const delay = Math.min(distance, 1) * 1700 + Math.random() * 100;
+                        makeFlower(insideContainer, 300 + x * 250, 265 - y * 250, flowerSize, delay, Math.random() * 70 - 35);
+                    });
+            }
+
+            const pathLength = outline.getTotalLength();
+            [outline, glow, inner].forEach(path => {
+                path.style.strokeDasharray = pathLength;
+                path.style.strokeDashoffset = pathLength;
+            });
+
+            window.setTimeout(() => {
+                heartArt.classList.add('is-forming');
+                outline.classList.add('is-drawing');
+                glow.classList.add('is-drawing');
+                inner.classList.add('is-drawing');
+            }, gatherDuration);
+
+            setTimeout(() => {
+                caption.textContent = 'Những đóa hoa đang nở từ trái tim...';
+                addInsideFlowers();
+            }, flowerStart);
+
+            setTimeout(() => {
+                insideContainer.removeAttribute('clip-path');
+                insideContainer.querySelectorAll('.bloom-flower').forEach(flower => {
+                    flower.style.animationDelay = `${(Math.random() * 450).toFixed(0)}ms`;
+                });
+                scene.classList.add('is-falling');
+            }, fallStart);
+
+            setTimeout(() => {
+                scene.classList.add('is-leaving');
+                setTimeout(() => {
+                    navigateToPage('gift.html');
+                }, 850);
+            }, fallStart + fallDuration);
+        }
+
+        // Khởi tạo hệ thống nhạc khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Trang chủ đã sẵn sàng');
+            console.log('🎵 Hệ thống nhạc nền đã được khởi tạo');
+            window.setTimeout(startJourney, 3000);
+            
+            // Thêm sự kiện để debug
+            audio.addEventListener('canplaythrough', function() {
+                console.log('✅ Nhạc đã tải xong và sẵn sàng phát');
+            });
+            
+            audio.addEventListener('waiting', function() {
+                console.log('⏳ Nhạc đang tải...');
+            });
+        });
+    </script>
+
+    <style>
+        /* Ẩn audio element */
+        #backgroundMusic {
+            display: none;
+        }
+        
+        .journey-scene {
+            position: fixed;
+            inset: 0;
+            z-index: 101;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5vh 4vw;
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, rgba(40, 8, 35, 0.25), rgba(0, 0, 0, 0.18) 65%, transparent);
+            transition: opacity 900ms ease, visibility 900ms ease;
+        }
+
+        .journey-scene.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .journey-scene.is-leaving {
+            opacity: 0;
+        }
+
+        .journey-scene.is-bursting .journey-caption {
+            animation: caption-fade 1.2s ease forwards;
+        }
+
+        .heart-particle {
+            opacity: 0;
+        }
+
+        .journey-caption {
+            display: none;
+            z-index: 1;
+            margin-bottom: clamp(8px, 2vh, 20px);
+            color: #ffe6f5;
+            font: 500 clamp(14px, 2.5vw, 21px)/1.4 'Times New Roman', Times, serif;
+            letter-spacing: 0.08em;
+            text-align: center;
+            text-shadow: 0 0 12px #ff69b4, 0 0 28px rgba(255, 90, 190, 0.8);
+            animation: caption-breathe 2.8s ease-in-out infinite;
+        }
+
+        .heart-art {
+            display: block;
+            width: min(84vw, 72vh, 680px);
+            max-height: 78vh;
+            overflow: visible;
+            transform-origin: center;
+        }
+
+        .heart-art.is-forming {
+            animation: heart-form 4.8s cubic-bezier(0.2, 0.75, 0.25, 1) both;
+        }
+
+        .journey-scene.is-falling .heart-path {
+            animation: heart-fade 900ms ease-out forwards;
+        }
+
+        .heart-path {
+            fill: none;
+            stroke: #fff9ce;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0;
+            filter: drop-shadow(0 0 5px rgba(255, 249, 206, 0.8));
+        }
+
+        .heart-path.is-drawing {
+            opacity: 1;
+            animation: trace-heart 4.8s cubic-bezier(0.45, 0.05, 0.25, 1) forwards;
+        }
+
+        .heart-path--glow {
+            stroke: #ffd84a;
+            stroke-width: 30;
+            filter: url(#heartGlow);
+            opacity: 0;
+        }
+
+        .heart-path--inner {
+            stroke: #ffd4ed;
+            stroke-width: 2;
+            opacity: 0;
+            filter: drop-shadow(0 0 8px rgba(255, 174, 224, 0.9));
+        }
+
+        .heart-path--inner.is-drawing {
+            opacity: 0.85;
+        }
+
+        .heart-path--glow.is-drawing {
+            opacity: 1;
+            animation-duration: 4.9s;
+        }
+
+        .bloom-flower {
+            opacity: 0;
+            transform-box: fill-box;
+            transform-origin: center;
+            animation: flower-bloom 800ms cubic-bezier(0.18, 0.75, 0.3, 1.25) forwards;
+            filter: drop-shadow(0 0 3px rgba(255, 223, 145, 0.18));
+        }
+
+        .journey-scene.is-falling .bloom-flower {
+            animation: flower-fall 2.4s cubic-bezier(0.42, 0, 0.72, 0.52) forwards;
+        }
+
+        @keyframes trace-heart {
+            to { stroke-dashoffset: 0; }
+        }
+
+        @keyframes heart-form {
+            0% {
+                opacity: 0;
+                transform: scale(0.18);
+                filter: brightness(1);
+            }
+            65% {
+                opacity: 1;
+                filter: brightness(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+                filter: brightness(1);
+            }
+        }
+
+        @keyframes heart-fade {
+            0% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        @keyframes flower-bloom {
+            0% {
+                opacity: 0;
+                transform: scale(0.12);
+            }
+            70% {
+                opacity: 0.86;
+                transform: scale(1.08);
+            }
+            100% {
+                opacity: 0.82;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes flower-fall {
+            0% {
+                opacity: 0.82;
+                transform: scale(1);
+            }
+            25% {
+                opacity: 0.92;
+                transform: translate(calc(var(--fall-x) * 0.25), 100px) rotate(18deg) scale(0.96);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--fall-x), var(--fall-y)) rotate(85deg) scale(0.72);
+            }
+        }
+
+        @keyframes caption-fade {
+            to {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+        }
+
+        @keyframes caption-breathe {
+            0%, 100% { opacity: 0.75; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 520px) {
+            .journey-scene {
+                padding: 4vh 2vw;
+            }
+
+            .heart-art {
+                width: min(92vw, 68vh);
+            }
+        }
+    </style>
+</body>
+</html>

@@ -832,7 +832,7 @@
 </head>
 <body>
     <!-- Audio element (hidden) -->
-    <audio id="backgroundMusic" loop>
+    <audio id="backgroundMusic" loop preload="none">
         <source src="ERIK x FREAKY x BENNY - 'Yêu Bền Bỉ'  Official MV - ERIK Official.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
@@ -881,10 +881,21 @@
 
     <script>
         // ===== HỆ THỐNG NHẠC NỀN =====
-        const audio = document.getElementById('backgroundMusic');
+        const audio = window.parent === window
+            ? document.getElementById('backgroundMusic')
+            : window.parent.document.getElementById('backgroundMusic');
+
+        function navigateToPage(path) {
+            if (window.parent !== window && typeof window.parent.navigateToPage === 'function') {
+                window.parent.navigateToPage(path);
+                return;
+            }
+            window.location.href = path;
+        }
         
         // Khôi phục trạng thái nhạc khi trang tải
-        window.addEventListener('load', function() {
+        if (window.parent === window) {
+          window.addEventListener('load', function() {
             const isPlaying = localStorage.getItem('musicPlaying') === 'true';
             const currentTime = localStorage.getItem('musicTime');
             const volume = localStorage.getItem('musicVolume');
@@ -933,6 +944,7 @@
         audio.addEventListener('volumechange', function() {
             localStorage.setItem('musicVolume', audio.volume);
         });
+        }
 
         // ===== HIỆU ỨNG CUTE MỚI =====
         
@@ -1192,7 +1204,7 @@
             
             // Chuyển trang sau 5 giây
             setTimeout(() => {
-                window.location.href = 'flower.html';
+                navigateToPage('flower.html');
             }, 5000);
             
             // Đếm ngược
@@ -1314,7 +1326,7 @@
                 if (lineIndex === letterLines.length - 1) {
                     flowerGarden.classList.add('is-blooming');
                     window.setTimeout(() => {
-                        window.location.href = 'flower.html';
+                        navigateToPage('flower.html');
                     }, 3000);
                     return;
                 }
