@@ -112,12 +112,6 @@
             }
         }, 2000);
 
-        if (localStorage.getItem('musicPlaying') === 'true') {
-            audio.play().catch(function(error) {
-                console.info('Trình duyệt cần thao tác của người dùng để tiếp tục phát nhạc.', error);
-            });
-        }
-
         loadRoute(routeFromHash(), false);
     </script>
 </body>

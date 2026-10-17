@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Một chút dịu dàng ngày 20/11</title>
+    <title>Một lời chúc dành cho Ngọc ngày 20/10</title>
     <style>
         *,
         *::after,
@@ -709,7 +709,13 @@
         }
 
         .letter-from {
-            margin-bottom: 1.35em;
+            margin-bottom: 0.2em !important;
+            color: #f7dfaa;
+            font-style: italic;
+        }
+
+        .letter-to {
+            margin-bottom: 1.35em !important;
             color: #f7dfaa;
             font-style: italic;
         }
@@ -872,8 +878,9 @@
     <main class="letter-scene">
         <div class="letter-stage">
             <p class="opening-line type-cursor" id="openingLine" aria-live="polite"></p>
-            <article class="letter" id="letter" aria-label="Lá thư chúc mừng ngày 20 tháng 11">
+            <article class="letter" id="letter" aria-label="Lá thư chúc mừng Ngọc ngày 20 tháng 10">
                 <p class="letter-from type-cursor" id="letterFrom"></p>
+                <p class="letter-to" id="letterTo"></p>
                 <div id="letterBody"></div>
             </article>
         </div>
@@ -1281,14 +1288,13 @@
         }
     </style>
     <script>
-        const openingLineText = 'Gửi ngàn yêu thương và những điều dịu dàng nhất đến những người phụ nữ tuyệt vời nhân ngày 20/10...';
+        const openingLineText = 'Một lời chúc nhỏ dành riêng cho Ngọc...';
         const letterLines = [
-            { text: 'Gửi những người phụ nữ dịu dàng và tuyệt vời trong cuộc đời tớ,', pause: 500 },
-            { text: 'Có những yêu thương đôi khi tớ chưa kịp nói thành lời. Cảm ơn mọi người vì đã luôn quan tâm, chở che và làm cho những ngày bình thường trở nên ấm áp hơn.', pause: 800 },
-            { text: 'Mong rằng mỗi ngày mọi người đều được yêu thương thật nhiều, luôn bình an, khỏe mạnh và giữ mãi nụ cười rạng rỡ của mình.', pause: 700 },
-            { text: 'Chúc một ngày 20/11 thật dịu dàng...', pause: 800, signoff: true }
+            { text: 'Cũng sắp tới 20/10 ròi, chúc Ngọc luôn xinh đẹp, học giỏi, tự tin vào bản thân và sẽ chinh phục được những ước mơ trên con đường học tập sắp tới. Và nhân tiện đây, tui cũng muốn cảm ơn Ngọc vì đã đồng hành cùng tui trong thời gian qua, mong cho tụi mình sẽ cùng nhau bước tiếp trên những chặng đường tiếp theo.', pause: 800 },
+            { text: 'Chúc Ngọc có 1 ngày 20/10 thật vui vẻ và hạnh phúc nhé.', pause: 800, signoff: true }
         ];
         const letterFrom = document.getElementById('letterFrom');
+        const letterTo = document.getElementById('letterTo');
         const letterBody = document.getElementById('letterBody');
         const letter = document.getElementById('letter');
         const flowerGarden = document.getElementById('flowerGarden');
@@ -1342,8 +1348,10 @@
                 openingLine.classList.add('is-fading');
                 window.setTimeout(() => {
                     letter.classList.add('is-visible');
-                    typeText(letterFrom, 'From: Coder (giấu tên)', 64, () => {
-                        window.setTimeout(() => typeLetterLine(0), 350);
+                    typeText(letterFrom, 'From: Meo', 64, () => {
+                        typeText(letterTo, 'To: Ngọc', 64, () => {
+                            window.setTimeout(() => typeLetterLine(0), 350);
+                        });
                     });
                 }, 900);
             }, 500);

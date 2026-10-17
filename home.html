@@ -12,6 +12,10 @@
     <div class="stars" id="stars"></div>
     <div id="clouds"></div>
 
+    <section class="start-screen" id="startScreen" aria-label="Bắt đầu">
+        <button class="start-button" id="startButton" type="button">Nhấp vào nhé</button>
+    </section>
+
     <section class="journey-scene" id="journeyScene" aria-hidden="true">
         <p class="journey-caption" id="journeyCaption">Một trái tim đang được thắp sáng...</p>
         <svg class="heart-art" viewBox="0 0 600 560" role="img" aria-label="Trái tim được vẽ bằng ánh sáng và phủ đầy hoa">
@@ -133,19 +137,6 @@
             });
         }
 
-        function resumeMusicFromGesture() {
-            if (audio.paused) {
-                startMusic().catch(error => {
-                    console.warn('Không thể phát nhạc sau thao tác của người dùng:', error);
-                });
-            }
-            document.removeEventListener('pointerdown', resumeMusicFromGesture);
-            document.removeEventListener('keydown', resumeMusicFromGesture);
-        }
-
-        document.addEventListener('pointerdown', resumeMusicFromGesture);
-        document.addEventListener('keydown', resumeMusicFromGesture);
-
         // Tạo sao
         const starsContainer = document.getElementById('stars');
         for (let i = 0; i < 200; i++) {
@@ -204,9 +195,6 @@
             if (journeyStarted) return;
             journeyStarted = true;
             scene.setAttribute('aria-hidden', 'false');
-            startMusic().catch(error => {
-                console.warn('Không thể phát nhạc nền:', error);
-            });
 
             const flowerImages = ['1.png', '2.png', '3.png'];
             const insideContainer = document.getElementById('heartInsideFlowers');
@@ -339,7 +327,17 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Trang chủ đã sẵn sàng');
             console.log('🎵 Hệ thống nhạc nền đã được khởi tạo');
-            window.setTimeout(startJourney, 3000);
+            const startScreen = document.getElementById('startScreen');
+            const startButton = document.getElementById('startButton');
+
+            startButton.addEventListener('click', function() {
+                startButton.disabled = true;
+                startScreen.classList.add('is-hidden');
+                startMusic().catch(error => {
+                    console.warn('Không thể phát nhạc nền:', error);
+                });
+                startJourney();
+            });
             
             // Thêm sự kiện để debug
             audio.addEventListener('canplaythrough', function() {
@@ -357,7 +355,49 @@
         #backgroundMusic {
             display: none;
         }
-        
+
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            background: radial-gradient(ellipse at center, rgba(40, 8, 35, 0.3), rgba(0, 0, 0, 0.72));
+            transition: opacity 800ms ease, visibility 800ms ease;
+        }
+
+        .start-screen.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .start-button {
+            padding: 16px 34px;
+            border: 1px solid rgba(255, 230, 245, 0.8);
+            border-radius: 999px;
+            background: rgba(104, 31, 83, 0.82);
+            color: #fff4fb;
+            font: 600 clamp(18px, 4vw, 24px)/1.2 'Times New Roman', Times, serif;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            box-shadow: 0 0 24px rgba(255, 105, 180, 0.45);
+            transition: transform 200ms ease, background-color 200ms ease, opacity 200ms ease;
+        }
+
+        .start-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background: rgba(145, 45, 112, 0.95);
+        }
+
+        .start-button:disabled {
+            cursor: wait;
+            opacity: 0.7;
+        }
+
         .journey-scene {
             position: fixed;
             inset: 0;
