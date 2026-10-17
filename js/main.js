@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set title text with typing effect
     const titleElement = document.getElementById('title');
-    const titleText = "Chúc mừng cậu 20/10 vui vẻ";
+    const titleText = "Chúc cậu 20/10 vui vẻ";
     let index = 0;
 
     function typeTitle() {
